@@ -1,0 +1,40 @@
+{
+  "numeric": {
+    "tenure": {
+      "mean": 32.37114865824223,
+      "std": 24.55948102309446,
+      "min": 0.0,
+      "max": 72.0
+    },
+    "monthlycharges": {
+      "mean": 64.76169246059918,
+      "std": 30.090047097678493,
+      "min": 18.25,
+      "max": 118.75
+    },
+    "totalcharges": {
+      "mean": 2283.3004408418656,
+      "std": 2266.771361883145,
+      "min": 18.8,
+      "max": 8684.8
+    }
+  },
+  "categorical": {
+    "contract": {
+      "Month-to-month": 0.5501916796819537,
+      "Two year": 0.24066448956410622,
+      "One year": 0.20914383075394008
+    },
+    "internetservice": {
+      "Fiber optic": 0.4395854039471816,
+      "DSL": 0.34374556297032516,
+      "No": 0.21666903308249325
+    },
+    "paymentmethod": {
+      "Electronic check": 0.3357944057929859,
+      "Mailed check": 0.22887973874769274,
+      "Bank transfer (automatic)": 0.21922476217520942,
+      "Credit card (automatic)": 0.2161010932841119
+    }
+  }
+}

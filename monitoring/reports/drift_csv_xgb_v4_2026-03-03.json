@@ -1,0 +1,44 @@
+{
+  "model_version": "xgb_v4",
+  "source": "csv",
+  "csv_path": "data/raw/telco_churn.csv",
+  "run_date": "2026-03-03",
+  "numeric": {
+    "tenure": {
+      "baseline_mean": 32.37114865824223,
+      "current_mean": 32.37114865824223,
+      "rel_change": 0.0,
+      "threshold": 0.2,
+      "status": "OK"
+    },
+    "monthlycharges": {
+      "baseline_mean": 64.76169246059918,
+      "current_mean": 64.76169246059918,
+      "rel_change": 0.0,
+      "threshold": 0.2,
+      "status": "OK"
+    },
+    "totalcharges": {
+      "baseline_mean": 2283.3004408418656,
+      "current_mean": 2283.3004408418656,
+      "rel_change": 0.0,
+      "threshold": 0.2,
+      "status": "OK"
+    }
+  },
+  "categorical": {
+    "contract": {
+      "threshold": 0.15,
+      "alerts": []
+    },
+    "internetservice": {
+      "threshold": 0.15,
+      "alerts": []
+    },
+    "paymentmethod": {
+      "threshold": 0.15,
+      "alerts": []
+    }
+  },
+  "overall_status": "OK"
+}

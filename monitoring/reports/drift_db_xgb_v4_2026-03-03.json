@@ -1,0 +1,44 @@
+{
+  "model_version": "xgb_v4",
+  "source": "db",
+  "csv_path": null,
+  "run_date": "2026-03-03",
+  "numeric": {
+    "tenure": {
+      "baseline_mean": 32.37114865824223,
+      "current_mean": 32.343355552403914,
+      "rel_change": 0.000858576448174217,
+      "threshold": 0.2,
+      "status": "OK"
+    },
+    "monthlycharges": {
+      "baseline_mean": 64.76169246059918,
+      "current_mean": 64.76803290313431,
+      "rel_change": 9.790421303444421e-05,
+      "threshold": 0.2,
+      "status": "OK"
+    },
+    "totalcharges": {
+      "baseline_mean": 2283.3004408418656,
+      "current_mean": 2281.004375,
+      "rel_change": 0.0010055907671173627,
+      "threshold": 0.2,
+      "status": "OK"
+    }
+  },
+  "categorical": {
+    "contract": {
+      "threshold": 0.15,
+      "alerts": []
+    },
+    "internetservice": {
+      "threshold": 0.15,
+      "alerts": []
+    },
+    "paymentmethod": {
+      "threshold": 0.15,
+      "alerts": []
+    }
+  },
+  "overall_status": "OK"
+}
