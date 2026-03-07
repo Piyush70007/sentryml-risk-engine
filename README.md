@@ -149,6 +149,42 @@ These endpoints provide information about prediction activity, drift monitoring,
 5. Monitoring endpoints track prediction behaviour and potential data drift.
 
 
+## Architecture Diagram
+
+The following diagram shows how the different parts of the system interact with each other.
+
+```mermaid
+flowchart TD
+    A[User / Client] --> B[FastAPI API]
+
+    B --> C[/predict endpoint/]
+    C --> D[Feature Engineering]
+    D --> E[XGBoost Model]
+
+    E --> F[Prediction Response]
+    E --> G[Prediction Logging]
+
+    G --> H[(SQLite Database)]
+
+    H --> I[/prediction-stats endpoint/]
+    H --> J[/model-health endpoint/]
+
+    K[Training Data] --> L[Baseline Statistics]
+    L --> M[baseline_stats.json]
+
+    N[New Data] --> O[Drift Monitoring]
+    M --> O
+
+    O --> P[Drift Reports]
+    P --> J
+    P --> Q[/metrics endpoint/]
+
+    R[GitHub Actions CI] --> S[Run Tests]
+    R --> T[Build Docker Image]
+```
+
+This diagram shows the full lifecycle of the system: predictions flow through the API and model, results are logged to the database, and monitoring components track prediction behaviour and data drift.
+
 ## Possible Improvements
 
 This project focuses on the core components of an end‑to‑end ML system.  
