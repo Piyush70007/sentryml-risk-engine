@@ -101,7 +101,7 @@ Example request:
 You can also test the API directly using the FastAPI interactive documentation at:
 
 ```
-http://localhost:8000/docs
+https://sentryml-risk-engine.onrender.com/docs
 ```
 
 This page allows you to try the `/predict` endpoint directly from the browser.
