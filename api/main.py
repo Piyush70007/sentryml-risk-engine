@@ -16,41 +16,6 @@ app = FastAPI(title = "SentryML Risk Engine API")
 
 MODEL = None
 
-@app.get("/health")
-def health():
-    return{
-        "status":"ok",
-        "db_connected":db_ok(),
-        "model_version":MODEL_VERSION,
-    }
-
-@app.on_event("startup")
-def _load_model_on_startup():
-    global MODEL
-    MODEL = load_model()
-
-@app.get("/model-info")
-def model_info():
-    path = model_path()
-    info = {
-        "model_version": MODEL_VERSION,
-        "model_path": str(path),
-        "exists": path.exists(),
-    }
-    if path.exists():
-        info["sha256"] = sha256_file(path)
-        info["size_bytes"] = path.stat().st_size
-    return info
-
-@app.get("/")
-def root():
-    return {
-        "status": "ok",
-        "message": "Welcome to the SentryML Risk Engine API.",
-        "docs": "/docs",
-        "endpoints": ["/health","/predict", "/model-info", "/metrics","/model-health", "/prediction-stats"]
-    }
-
 pipe = joblib.load(f"models/{MODEL_VERSION}.joblib")
 
 class customerInput(BaseModel):
@@ -75,7 +40,107 @@ class customerInput(BaseModel):
     monthlycharges : float
     totalcharges : float
 
-@app.get("/prediction-stats")
+class HealthResponse(BaseModel):
+    status: str
+    db_connected: bool
+    model_version: str
+
+
+class ModelInfoResponse(BaseModel):
+    model_version: str
+    model_path: str
+    exists: bool
+    sha256: Optional[str] = None
+    size_bytes: Optional[int] = None
+
+
+class PredictionStatsResponse(BaseModel):
+    window_hours: int
+    total_predictions: int
+    avg_churn_probability: float
+    churn_predictions: int
+    predicted_churn_rate: float
+
+
+class DriftMonitoringResponse(BaseModel):
+    drift_status: str
+    drift_report: Optional[str] = None
+
+
+class PredictionMonitoringResponse(BaseModel):
+    window_hours: int
+    status: str
+    total_predictions: int
+    avg_churn_probability: float
+    churn_predictions: int
+    predicted_churn_rate: float
+    alerts: list[str]
+
+
+class ModelHealthResponse(BaseModel):
+    model_version: str
+    prediction_monitoring: PredictionMonitoringResponse
+    drift_monitoring: DriftMonitoringResponse
+
+
+class PredictResponse(BaseModel):
+    customerid: str
+    churn_probability: float
+    churn_prediction: int
+    model_version: str
+    threshold: float
+
+class RootResponse(BaseModel):
+    status: str
+    message: str
+    docs: str
+    endpoints: list[str]
+
+
+class MetricsResponse(BaseModel):
+    status: str
+    latest_report: Optional[str] = None
+    model_version: Optional[str] = None
+    run_date: Optional[str] = None
+    overall_status: Optional[str] = None
+    path: Optional[str] = None
+
+@app.get("/health", response_model=HealthResponse)
+def health():
+    return{
+        "status":"ok",
+        "db_connected":db_ok(),
+        "model_version":MODEL_VERSION,
+    }
+
+@app.on_event("startup")
+def _load_model_on_startup():
+    global MODEL
+    MODEL = load_model()
+
+@app.get("/model-info", response_model=ModelInfoResponse)
+def model_info():
+    path = model_path()
+    info = {
+        "model_version": MODEL_VERSION,
+        "model_path": str(path),
+        "exists": path.exists(),
+    }
+    if path.exists():
+        info["sha256"] = sha256_file(path)
+        info["size_bytes"] = path.stat().st_size
+    return info
+
+@app.get("/", response_model=RootResponse)
+def root():
+    return {
+        "status": "ok",
+        "message": "Welcome to the SentryML Risk Engine API.",
+        "docs": "/docs",
+        "endpoints": ["/health","/predict", "/model-info", "/metrics","/model-health", "/prediction-stats"]
+    }
+
+@app.get("/prediction-stats", response_model=PredictionStatsResponse)
 def prediction_stats(hours: int = 24):
     try:
         with ENGINE.connect() as conn:
@@ -83,7 +148,7 @@ def prediction_stats(hours: int = 24):
     except Exception as e:
         return {"error": str(e), "where": "prediction_stats"}
 
-@app.get("/metrics")
+@app.get("/metrics", response_model=MetricsResponse)
 def metrics():
     reports_dir = Path("monitoring/reports")
 
@@ -105,12 +170,12 @@ def metrics():
         "overall_status": data.get("overall_status"),
     }
 
-@app.get("/model-health")
+@app.get("/model-health", response_model=ModelHealthResponse)
 def model_health(hours : int =24):
     try:
         with ENGINE.connect() as conn:
             stats = get_model_health(conn, hours=hours)
-        drift= get_latest_drift_status()
+        drift = get_latest_drift_status()
         return{
             "model_version": MODEL_VERSION,
             "prediction_monitoring": stats,
@@ -119,11 +184,11 @@ def model_health(hours : int =24):
     except Exception as e:
         return {"error": str(e), "where": "model_health"}
     
-@app.post("/predict")
+@app.post("/predict", response_model=PredictResponse)
 def predict(inp: customerInput):
     customerid = inp.customerid or str(uuid4())
 
-    data = inp.dict()
+    data = inp.model_dump()
     data["customerid"] = customerid
     X = pd.DataFrame([{k: v for k, v in data.items() if k != "customerid"}])
 
@@ -156,6 +221,3 @@ def predict(inp: customerInput):
         "model_version"   : MODEL_VERSION,
         "threshold"       : DECISION_THRESHOLD
     }
-
-
-
